@@ -4,6 +4,9 @@ const { userRouter } = require("./routes/User.routes");
 const jwt = require("jsonwebtoken");
 const { auth } = require("./middleware/auth.middleware");
 const { noteRouter } = require("./routes/Note.routes");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+
 require("dotenv").config();
 var cors = require("cors");
 
@@ -11,6 +14,36 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Learning API documentation using swagger",
+      version: "1.0.0",
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+  },
+
+  apis: ["./routes/*.js"],
+};
+
+const specification = swaggerJsdoc(options);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specification));
 
 app.use("/users", userRouter);
 
